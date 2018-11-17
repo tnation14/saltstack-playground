@@ -1,0 +1,37 @@
+# vim: ft=yaml
+---
+driver:
+  name: vagrant
+  customize: 
+    memory: 1024
+
+provisioner:
+  name: salt_solo
+  is_file_root: true
+  salt_copy_filter:
+    - .kitchen
+    - .git
+    - .vagrant
+  state_top:
+    base:
+      "*":
+        - test.mockup
+        - docker
+
+platforms:
+  - name: bento/debian-8.11
+  - name: bento/debian-9.5
+
+suites:
+  - name: default
+
+  - name: custom
+    provisioner:
+      pillars-from-files:
+        docker.sls: pillar-custom.sls
+      pillars:
+        top.sls:
+          base:
+            "*":
+              - docker
+
