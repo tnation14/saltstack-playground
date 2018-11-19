@@ -19,7 +19,6 @@ provisioner:
         - docker
 
 platforms:
-  - name: bento/debian-8.11
   - name: bento/debian-9.5
 
 suites:
