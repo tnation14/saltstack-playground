@@ -1,0 +1,59 @@
+---
+driver:
+  name: vagrant
+
+provisioner:
+  name: salt_solo
+  is_file_root: true
+  salt_copy_filter:
+    - .kitchen
+    - .git
+    - .vagrant
+  dependencies:
+    - name: docker-ce
+      path: ../docker-ce-formula
+    - name: caserver
+      path: ../caserver-formula
+    - name: caengine
+      path: ../caengine-formula
+    - name: cafrontend
+      path: ../cafrontend-formula
+    - name: kafka
+      path: ../kafka-formula
+    - name: iptables
+      path: ../iptables-formula
+    - name: ssh
+      path: ../ssh-formula
+  state_top:
+    base:
+      "*":
+        - ssh
+        - docker-ce
+        - iptables
+        - kafka
+        - caserver
+        - caengine
+        - cafrontend
+  pillars_from_directories:
+    - source: ../salt-pillar/network
+      dest: srv/pillar/network
+    - source: ../salt-pillar/ssh
+      dest: srv/pillar/ssh
+    - source: ../salt-pillar/repos
+      dest: srv/pillar/repos
+    - source: ../salt-pillar/cloudapps
+      dest: srv/pillar/cloudapps
+  pillars:
+    top.sls:
+      base:
+        "*":
+          - ssh.default
+          - cloudapps.development
+          - repos.artifactory.docker.infra_linodes
+
+
+platforms:
+  - name: bento/debian-9.5
+
+suites:
+  - name: default
