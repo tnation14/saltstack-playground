@@ -3,5 +3,4 @@
 
 docker:
   enabled: false
-  pkg: screen
-
+  pkg: docker-ce

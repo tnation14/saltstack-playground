@@ -4,5 +4,4 @@
 
 docker_pkg:
   pkg.installed:
-    - name: {{ docker.pkg }}
-
+    - name: "{{ docker.pkg }}"
