@@ -2,5 +2,5 @@
 # Custom Pillar Data for docker
 
 docker:
-  enabled: false
+  enabled: true
 
