@@ -10,6 +10,8 @@ docker_daemon_config:
     - group: root
     - mode: 0600
     - template: jinja
+    - require:
+      - pkg: "{{ docker.pkg }}"
 
 
 docker_apt_repo:
