@@ -1,0 +1,7 @@
+{%- from "docker/map.jinja" import docker with context %}
+
+# docker configuration file
+
+{%- for key, value in docker.daemon_options.items() %}
+{{ key }}={{ value }}
+{% endfor -%}

@@ -2,15 +2,14 @@
 # How to configure docker
 {%- from "docker/map.jinja" import docker with context %}
 
-docker_config:
+docker_daemon_config:
   file.managed:
-    - name: '/tmp/config.conf'
-    - source: salt://docker/files/config.conf
+    - name: "{{ docker.conf_file_path }}"
+    - source: salt://docker/files/config.conf.j2
     - user: root
     - group: root
     - mode: 0600
     - template: jinja
-    - local_string: 'test string please ignore'
 
 
 docker_apt_repo:

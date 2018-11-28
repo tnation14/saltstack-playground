@@ -9,10 +9,14 @@ Setup variable using grains['os_family'] based logic. This data will be shared
 across all oscodenames (jessie, stretch, etc).
 #}
 {% set os_family_map = salt['grains.filter_by']({
-        'Debian': {},
+        'Debian': {
+          'conf_file_path': '/etc/default/docker',
+        },
         'Suse': {},
         'Arch': {},
-        'RedHat': {},
+        'RedHat': {
+          'conf_file_path': '/etc/sysconfig/docker',
+        },
   }
   , grain="os_family"
   , merge=salt['pillar.get']('docker:lookup'))
