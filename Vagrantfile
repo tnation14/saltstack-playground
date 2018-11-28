@@ -45,9 +45,7 @@ Vagrant.configure("2") do |config|
     # the path on the host to the actual folder. The second argument is
     # the path on the guest to mount the folder. And the optional third
     # argument is a set of non-required options.
-    master.vm.synced_folder "./formulas", "/srv/salt/formulas/"
-    master.vm.synced_folder "./modules", "/srv/salt/modules/"
-    master.vm.synced_folder "./pillar", "/srv/salt/pillar/"
+    master.vm.synced_folder "./srv/salt/", "/srv/salt/"
     master.vm.synced_folder "./etc/salt/master.d", "/etc/salt/master.d"
     master.vm.provision "shell", inline: <<-SHELL
       echo "Setting up APT repos"
