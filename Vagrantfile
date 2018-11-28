@@ -48,6 +48,7 @@ Vagrant.configure("2") do |config|
     master.vm.synced_folder "./formulas", "/srv/salt/formulas/"
     master.vm.synced_folder "./modules", "/srv/salt/modules/"
     master.vm.synced_folder "./pillar", "/srv/salt/pillar/"
+    master.vm.synced_folder "./etc/salt/master.d", "/etc/salt/master.d"
     master.vm.provision "shell", inline: <<-SHELL
       echo "Setting up APT repos"
       wget -O - https://repo.saltstack.com/apt/debian/9/amd64/latest/SALTSTACK-GPG-KEY.pub | apt-key add -
