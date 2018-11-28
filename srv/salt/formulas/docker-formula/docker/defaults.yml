@@ -2,6 +2,6 @@
 # Defaults for docker
 
 docker:
-  enabled: true
+  enabled: false
   pkg: screen
 
