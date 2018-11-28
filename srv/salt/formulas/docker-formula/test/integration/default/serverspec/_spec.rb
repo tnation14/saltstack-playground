@@ -4,14 +4,14 @@ require 'serverspec'
 set :backend, :exec
 
 
-describe package('screen') do
-  it { should be_installed }
+describe package('docker-ce') do
+  it { should_not be_installed }
 end
 
-describe file('/tmp/config.conf'), :if => os[:family] == 'debian' do
-    it { should be_file }
-    it { should be_mode 600 }
-    it { should be_owned_by 'root' }
-    it { should be_grouped_into 'root' }
-    its(:content) { should match /test string please ignore/ }
+describe file('/etc/default/docker'), :if => os[:family] == 'debian' do
+    it { should_not exist }
+end
+
+describe file('/etc/sysconfig/docker'), :if => os[:family] == 'redhat' do
+    it { should_not exist }
 end
