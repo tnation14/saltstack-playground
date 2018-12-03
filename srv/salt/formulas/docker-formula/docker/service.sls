@@ -11,4 +11,3 @@ docker_service:
    - enable: True
    - watch:
        - file: "{{ docker.conf_file_path }}"
-
