@@ -26,6 +26,14 @@ across all oscodenames (jessie, stretch, etc).
         'Arch': {},
         'RedHat': {
           'conf_file_path': '/etc/sysconfig/docker',
+          'repo': 'yum',
+          'repo_url': 'https://download.docker.com/linux/centos/$releasever/$basearch/stable',
+          'key_url': 'https://download.docker.com/linux/centos/gpg',
+          'pkg_deps': [
+            'yum-utils',
+            'device-mapper-persistent-data',
+            'lvm2',
+          ]
         },
   }
   , grain="os_family"
@@ -39,6 +47,7 @@ for configurations specific to os versions.
 {% set os_codename_map = salt['grains.filter_by']({
         'jessie': {},
         'stretch': {},
+        'CentOS Linux 7 (Core)': {}
   }
   , grain="oscodename"
   , merge=salt['pillar.get']('docker:lookup'))

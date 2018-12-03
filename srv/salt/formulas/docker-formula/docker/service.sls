@@ -5,10 +5,10 @@
 'docker-service not configured':
   test.succeed_without_changes
 
-#docker_service:
-#  service.running:
-#    - name: docker
-#    - enable: True
-#    - watch:
-#        - file: docker_config
+docker_service:
+ service.running:
+   - name: docker
+   - enable: True
+   - watch:
+       - file: "{{ docker.conf_file_path }}"
 

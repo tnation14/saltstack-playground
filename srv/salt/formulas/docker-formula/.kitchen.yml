@@ -2,7 +2,7 @@
 ---
 driver:
   name: vagrant
-  customize: 
+  customize:
     memory: 1024
 
 provisioner:
@@ -20,6 +20,7 @@ provisioner:
 
 platforms:
   - name: bento/debian-9.5
+  - name: bento/centos-7.5
 
 suites:
   - name: default
