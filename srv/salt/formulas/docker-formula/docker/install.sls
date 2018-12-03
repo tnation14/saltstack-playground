@@ -11,3 +11,5 @@ docker_deps:
 docker_pkg:
   pkg.installed:
     - name: "{{ docker.pkg }}"
+    - require:
+      - sls: "docker.{{ docker.repo }}"
