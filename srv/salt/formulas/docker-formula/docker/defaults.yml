@@ -1,7 +1,0 @@
-# vim: ft=yaml
-# Defaults for docker
-
-docker:
-  enabled: false
-  pkg: docker-ce
-  component: stable

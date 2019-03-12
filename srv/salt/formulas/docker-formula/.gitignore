@@ -1,6 +1,0 @@
-.kitchen
-.kitchen.local.yml
-.vagrant
-.DS_store
-*.swp
-*.lock
