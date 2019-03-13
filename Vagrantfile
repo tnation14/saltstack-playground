@@ -40,7 +40,7 @@ Vagrant.configure("2") do |config|
 
     # Create a private network, which allows host-only access to the machine
     # using a specific IP.
-    master.vm.network "private_network", ip: "10.0.0.2"
+    master.vm.network "private_network", ip: "192.168.100.2"
     # Share an additional folder to the guest VM. The first argument is
     # the path on the host to the actual folder. The second argument is
     # the path on the guest to mount the folder. And the optional third
@@ -67,7 +67,7 @@ Vagrant.configure("2") do |config|
 
     # Create a private network, which allows host-only access to the machine
     # using a specific IP.
-    dminion.vm.network "private_network", ip: "10.0.0.3"
+    dminion.vm.network "private_network", ip: "192.168.100.3"
     dminion.vm.provision "shell", inline: <<-SHELL
       echo "Setting up APT repos"
       wget -O - https://repo.saltstack.com/apt/debian/9/amd64/latest/SALTSTACK-GPG-KEY.pub | apt-key add -
@@ -87,7 +87,7 @@ Vagrant.configure("2") do |config|
 
     # Create a private network, which allows host-only access to the machine
     # using a specific IP.
-    cminion.vm.network "private_network", ip: "10.0.0.4"
+    cminion.vm.network "private_network", ip: "192.168.100.4"
     cminion.vm.provision "shell", inline: <<-SHELL
       echo "Setting up Yum repos"
       yum install -y https://repo.saltstack.com/yum/redhat/salt-repo-latest-2.el7.noarch.rpm
