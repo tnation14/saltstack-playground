@@ -1,0 +1,6 @@
+[submodule "srv/salt/formulas/docker-ce-formula"]
+	path = srv/salt/formulas/docker-ce-formula
+	url = git@bits.linode.com:ops/docker-ce-formula
+[submodule "srv/salt/formulas/haproxy-formula"]
+	path = srv/salt/formulas/haproxy-formula
+	url = git@bits.linode.com:ops/haproxy-formula
