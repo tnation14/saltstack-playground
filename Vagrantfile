@@ -49,12 +49,12 @@ Vagrant.configure("2") do |config|
     master.vm.synced_folder "./etc/salt/master.d", "/etc/salt/master.d"
     master.vm.provision "shell", inline: <<-SHELL
       echo "Setting up APT repos"
-      wget -O - https://repo.saltstack.com/apt/debian/9/amd64/latest/SALTSTACK-GPG-KEY.pub | apt-key add -
-      echo 'deb http://repo.saltstack.com/apt/debian/9/amd64/latest stretch main' > /etc/apt/sources.list.d/saltstack.list
+      wget -O - https://repo.saltstack.com/apt/debian/9/amd64/2018.3/SALTSTACK-GPG-KEY.pub | apt-key add -
+      echo 'deb http://repo.saltstack.com/apt/debian/9/amd64/2018.3 stretch main' > /etc/apt/sources.list.d/saltstack.list
       apt-get update
 
       echo "Installing Salt master and minion"
-      apt-get install -y salt-minion salt-master
+      apt-get install -y salt-minion salt-master salt-api
       echo "Done!"
 
     SHELL
@@ -70,8 +70,8 @@ Vagrant.configure("2") do |config|
     dminion.vm.network "private_network", ip: "192.168.100.3"
     dminion.vm.provision "shell", inline: <<-SHELL
       echo "Setting up APT repos"
-      wget -O - https://repo.saltstack.com/apt/debian/9/amd64/latest/SALTSTACK-GPG-KEY.pub | apt-key add -
-      echo 'deb http://repo.saltstack.com/apt/debian/9/amd64/latest stretch main' > /etc/apt/sources.list.d/saltstack.list
+      wget -O - https://repo.saltstack.com/apt/debian/9/amd64/2018.3/SALTSTACK-GPG-KEY.pub | apt-key add -
+      echo 'deb http://repo.saltstack.com/apt/debian/9/amd64/2018.3 stretch main' > /etc/apt/sources.list.d/saltstack.list
       apt-get update
 
       echo "Installing Salt minion"
@@ -90,7 +90,7 @@ Vagrant.configure("2") do |config|
     cminion.vm.network "private_network", ip: "192.168.100.4"
     cminion.vm.provision "shell", inline: <<-SHELL
       echo "Setting up Yum repos"
-      yum install -y https://repo.saltstack.com/yum/redhat/salt-repo-latest-2.el7.noarch.rpm
+      yum install -y https://repo.saltstack.com/yum/redhat/salt-repo-2018.3.el7.noarch.rpm
       yum clean expire-cache
 
       yum install -y salt-minion
