@@ -68,6 +68,8 @@ Vagrant.configure("2") do |config|
     # Create a private network, which allows host-only access to the machine
     # using a specific IP.
     dminion.vm.network "private_network", ip: "192.168.100.3"
+    dminion.vm.network "forwarded_port", guest: 80, host: 8080
+    dminion.vm.network "forwarded_port", guest: 443, host: 4443
     dminion.vm.provision "shell", inline: <<-SHELL
       echo "Setting up APT repos"
       wget -O - https://repo.saltstack.com/apt/debian/9/amd64/2018.3/SALTSTACK-GPG-KEY.pub | apt-key add -

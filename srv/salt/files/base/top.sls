@@ -1,3 +1,5 @@
 base:
-  '*':
-  - docker
+  'minion-debian':
+  - mockup
+  - docker-ce
+  - haproxy

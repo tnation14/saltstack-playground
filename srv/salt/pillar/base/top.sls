@@ -1,3 +1,6 @@
 base:
-  '*':
-  - test.main
+  'salt':
+  - test
+  - app
+  'minion-debian':
+  - 'app'
