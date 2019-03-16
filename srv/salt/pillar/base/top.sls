@@ -1,6 +1,4 @@
 base:
-  'salt':
-  - test
-  - app
   'minion-debian':
   - 'app'
+  - 'app.orch'

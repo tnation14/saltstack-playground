@@ -1,5 +1,3 @@
-{% set application_port = 8080 %}
-
 haproxy:
   enabled: True
   version: 1.9
@@ -11,7 +9,6 @@ haproxy:
       - office
       - prod
       - loadbal
-
   config:
     logging:
       'Send logs to stdout':
@@ -46,35 +43,15 @@ haproxy:
           docker_local:
             enabled: True
             filters:
-              label: "stack=active"
-            port: {{ application_port }}
+              label: "image=latest"
       release:
         http_proxy:
+          enabled: False
           balance_algorithm: roundrobin
           docker_local:
             enabled: True
             filters:
-              label: "stack=release"
-            port: {{ application_port }}
-      drain:
-        http_proxy:
-          balance_algorithm: roundrobin
-          docker_local:
-            enabled: True
-            filters:
-              label: "stack=drain"
-            port: {{ application_port }}
-
-orch:
-  app:
-    docker_config:
-      count: 1
-      name_prefix: app
-      image: nginx
-      tag: 1.13
-      port: {{ application_port }}
-      binds:
-        - "/etc/nginx/conf.d/blue.conf:/etc/nginx/conf.d/default.conf"
+              label: "image=latest"
 
 docker:
   networks:
