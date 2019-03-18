@@ -1,15 +1,14 @@
-{% for color in ["blue", "green"] %}
-test_write_nginx_{{ color }}_config:
+test_write_nginx_config:
   file.managed:
-    - name: /etc/nginx/conf.d/{{ color }}.conf
-    - source: salt://mockup/files/{{ color }}.conf
+    - name: /etc/nginx/conf.d/default.conf
+    - source: salt://mockup/files/default.conf
     - mode: 0600
     - user: root
     - group: root
     - makedirs: true
+    - template: jinja
     - require_in:
       - sls: docker-ce
-{% endfor %}
 
 
 test_mockup_ssl_create_ca:
