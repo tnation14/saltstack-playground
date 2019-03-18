@@ -1,3 +1,6 @@
+mockup:
+  color: blue
+
 haproxy:
   enabled: True
   version: 1.9
@@ -40,16 +43,18 @@ haproxy:
       active:
         http_proxy:
           balance_algorithm: roundrobin
+          servers: {}
           docker_local:
-            enabled: True
+            enabled: False
             filters:
               label: "image=latest"
       release:
         http_proxy:
           enabled: False
           balance_algorithm: roundrobin
+          servers: {}
           docker_local:
-            enabled: True
+            enabled: False
             filters:
               label: "image=latest"
 

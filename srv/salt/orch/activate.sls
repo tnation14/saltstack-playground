@@ -1,44 +1,57 @@
-{%- set pillar = salt.saltutil.runner('pillar.show_pillar', kwarg={'minion': 'minion-debian'})['orch']['app'] %}
-{%- set old_image = pillar['docker_config']['image'] %}
-{%- set new_image = "nginx:1.15" %} # Parameter
-{%- set binds = ['/etc/nginx/conf.d/blue.conf:/etc/nginx/conf.d/default.conf'] %} # Parameter
-{%- set labels = "image=" + new_image %}
-{% set dummy_pillar =  {'labels': labels.split(","), 'image': new_image, 'binds': binds} %}
+{% set app_name = "app" %}
+{%- set pillar = salt.saltutil.runner('pillar.show_pillar', kwarg={'minion': 'minion-debian'})['deployment'] %}
+{%- set color = "blue" %}
 
 update_app_config:
   salt.state:
-    - tgt: minion-debian
+    - tgt: {{ pillar['config']['target'] }}
+    {% if pillar['config']['target_type'] is defined %}
+    - tgt_type: {{ pillar['config']['target_type'] }}
+    {% endif %}
     - sls:
-      - 'mockup'
+      - {{ pillar['config']['formula']}}
+    - pillar:
+        mockup:
+          color: {{ color }}
 
-{% do pillar['docker_config'].update(dummy_pillar) %}
+{# {% do pillar['docker_config'].update(dummy_pillar) %}#}
+{% set stack_config = pillar['stacks'][app_name] %}
+
+{%- set old_image = stack_config['docker_config']['image'] %}
+{%- set new_image = old_image.split(":")[0] + ":{}".format("1.14") %} # API Parameter
+{%- do stack_config['docker_config']['labels'].append("image=" + new_image) %}
+{%- do stack_config['docker_config'].update({'image': new_image }) %}
 
 deploy_new_stack:
   salt.state:
-    - tgt: minion-debian
+    - tgt: {{ pillar['config']['target'] }}
+    {% if pillar['config']['target_type'] is defined %}
+    - tgt_type: {{ pillar['config']['target_type'] }}
+    {% endif %}
     - sls:
       - 'docker-ce'
     - pillar:
         docker:
           containers:
-          {% for i in range(pillar['count']) %}
-            "{{ pillar['name_prefix'] }}_{{ pillar['docker_config']['image'] | replace(':', '_') }}-{{ i }}":
-              {{ pillar['docker_config'] | yaml }}
+          {% for i in range(stack_config['count']) %}
+            "{{ app_name }}_{{ stack_config['docker_config']['image'] | replace(':', '_') }}-{{ i }}":
+              {{ stack_config['docker_config'] | yaml }}
           {% endfor %}
 
 update_haproxy:
   salt.state:
-    - tgt: minion-debian
+    - tgt: {{ pillar['loadbal']['target'] }}
+    - tgt_type: {{ pillar['loadbal']['target_type'] }}
     - sls:
       - haproxy
     - pillar:
         haproxy:
           config:
             frontends:
-              linode.example.com: # Parameterize
+              {{ pillar['loadbal']['frontend'] }}: # Parameterize
                 acls:
                   - name: release_traffic
-                    condition: src 10.0.2.0/16
+                    condition: src 10.0.2.0/16 # Eventually, this will be the office IPs
                     enabled: True
                 http_proxy:
                   use_backends:
@@ -50,16 +63,17 @@ update_haproxy:
                 http_proxy:
                   enabled: true
                   docker_local:
-                    port: {{ pillar['docker_config']['ports'] }}
+                    enabled: True
+                    port: {{ stack_config['docker_config']['ports'] }}
                     filters:
                       label:
                         - image={{ new_image }} # Parameter
               active:
                 http_proxy:
                   docker_local:
-                    port: {{ pillar['docker_config']['ports'] }}
+                    enabled: True
+                    port: {{ stack_config['docker_config']['ports'] }}
                     filters:
                       label:
                         - image={{ old_image }} # Pull from pillar
-
 ## TODO update pillar after health-check
