@@ -20,4 +20,4 @@ stacks:
           - "/etc/nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf"
         labels: []
         networks:
-          - office
+          - prod
