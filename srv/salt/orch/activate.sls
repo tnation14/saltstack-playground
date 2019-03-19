@@ -1,54 +1,53 @@
-{% set app_name = "app" %}
-{%- set pillar = salt.saltutil.runner('pillar.show_pillar', kwarg={'minion': 'minion-debian'})['deployment'] %}
+{% set app_name = "app" %} # Parameter
+{%- set deployment = salt.saltutil.runner('pillar.show_pillar', kwarg={'minion': 'minion-debian'})['stacks'][app_name] %} # TODO should this be master pillar?? Come from request?
 {%- set color = "blue" %}
 
 update_app_config:
   salt.state:
-    - tgt: {{ pillar['config']['target'] }}
-    {% if pillar['config']['target_type'] is defined %}
-    - tgt_type: {{ pillar['config']['target_type'] }}
+    - tgt: {{ deployment['config']['target'] }}
+    {% if deployment['config']['target_type'] is defined %}
+    - tgt_type: {{ deployment['config']['target_type'] }}
     {% endif %}
     - sls:
-      - {{ pillar['config']['formula']}}
+      - {{ deployment['config']['formula']}}
     - pillar:
         mockup:
           color: {{ color }}
 
-{# {% do pillar['docker_config'].update(dummy_pillar) %}#}
-{% set stack_config = pillar['stacks'][app_name] %}
+{# {% do deployment['docker_config'].update(dummy_pillar) %}#}
 
-{%- set old_image = stack_config['docker_config']['image'] %}
+{%- set old_image = deployment['task_definition']['docker_config']['image'] %}
 {%- set new_image = old_image.split(":")[0] + ":{}".format("1.14") %} # API Parameter
-{%- do stack_config['docker_config']['labels'].append("image=" + new_image) %}
-{%- do stack_config['docker_config'].update({'image': new_image }) %}
+{%- do deployment['task_definition']['docker_config']['labels'].append("image=" + new_image) %}
+{%- do deployment['task_definition']['docker_config'].update({'image': new_image }) %}
 
 deploy_new_stack:
   salt.state:
-    - tgt: {{ pillar['config']['target'] }}
-    {% if pillar['config']['target_type'] is defined %}
-    - tgt_type: {{ pillar['config']['target_type'] }}
+    - tgt: {{ deployment['config']['target'] }}
+    {% if deployment['config']['target_type'] is defined %}
+    - tgt_type: {{ deployment['config']['target_type'] }}
     {% endif %}
     - sls:
       - 'docker-ce'
     - pillar:
         docker:
           containers:
-          {% for i in range(stack_config['count']) %}
-            "{{ app_name }}_{{ stack_config['docker_config']['image'] | replace(':', '_') }}-{{ i }}":
-              {{ stack_config['docker_config'] | yaml }}
+          {% for i in range(deployment['task_definition']['count']) %}
+            "{{ app_name }}_{{ deployment['task_definition']['docker_config']['image'] | replace(':', '_') }}-{{ i }}":
+              {{ deployment['task_definition']['docker_config'] | yaml }}
           {% endfor %}
 
 update_haproxy:
   salt.state:
-    - tgt: {{ pillar['loadbal']['target'] }}
-    - tgt_type: {{ pillar['loadbal']['target_type'] }}
+    - tgt: {{ deployment['loadbal']['target'] }}
+    - tgt_type: {{ deployment['loadbal']['target_type'] }}
     - sls:
       - haproxy
     - pillar:
         haproxy:
           config:
             frontends:
-              {{ pillar['loadbal']['frontend'] }}: # Parameterize
+              {{ deployment['loadbal']['frontend'] }}: # Parameterize
                 acls:
                   - name: release_traffic
                     condition: src 10.0.2.0/16 # Eventually, this will be the office IPs
@@ -61,10 +60,9 @@ update_haproxy:
             backends:
               release:
                 http_proxy:
-                  enabled: true
                   docker_local:
                     enabled: True
-                    port: {{ stack_config['docker_config']['ports'] }}
+                    port: {{ deployment['task_definition']['docker_config']['ports'] }}
                     filters:
                       label:
                         - image={{ new_image }} # Parameter
@@ -72,7 +70,7 @@ update_haproxy:
                 http_proxy:
                   docker_local:
                     enabled: True
-                    port: {{ stack_config['docker_config']['ports'] }}
+                    port: {{ deployment['task_definition']['docker_config']['ports'] }}
                     filters:
                       label:
                         - image={{ old_image }} # Pull from pillar

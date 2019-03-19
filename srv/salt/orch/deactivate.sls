@@ -1,12 +1,11 @@
-{% set app_name = "app" %}
-{%- set pillar = salt.saltutil.runner('pillar.show_pillar', kwarg={'minion': 'minion-debian'})['deployment'] %}
+{% set app_name = "app" %} # Parameter
+{%- set pillar = salt.saltutil.runner('pillar.show_pillar', kwarg={'minion': 'minion-debian'})['stacks'][app_name] %} # TODO should this be master pillar?? Come from request?
 # Get pillar
 # Update with user
 
-{% set stack_config = pillar['stacks'][app_name] %}
-{%- set old_image = stack_config['docker_config']['image'] %}
+{%- set old_image = pillar['task_definition']['docker_config']['image'] %}
 {%- set new_image = old_image.split(":")[0] + ":{}".format("1.14") %} # API Parameter
-{%- do stack_config['docker_config']['labels'].append("image=" + new_image) %}
+{%- do pillar['task_definition']['docker_config']['labels'].append("image=" + new_image) %}
 
 update_haproxy:
   salt.state:
@@ -27,7 +26,7 @@ update_haproxy:
                   enabled: true
                   docker_local:
                     enabled: true
-                    port: {{ stack_config['docker_config']['ports'] }}
+                    port: {{ pillar['task_definition']['docker_config']['ports'] }}
                     filters:
                       label:
                         - image={{ new_image }} # Parameter
@@ -42,8 +41,8 @@ deactivate_old_stack:
     - pillar:
         docker:
           containers:
-          {% for i in range(stack_config['count']) %}
-            "{{ app_name }}_{{ stack_config['docker_config']['image'] | replace(':', '_') }}-{{ i }}":
+          {% for i in range(pillar['task_definition']['count']) %}
+            "{{ app_name }}_{{ pillar['task_definition']['docker_config']['image'] | replace(':', '_') }}-{{ i }}":
               {{ container_config | yaml }}
           {% endfor %}
     - onsuccess:
@@ -68,7 +67,7 @@ prune_old_backends:
                 http_proxy:
                   docker_local:
                     enabled: true
-                    port: {{ stack_config['docker_config']['ports'] }}
+                    port: {{ pillar['task_definition']['docker_config']['ports'] }}
                     filters:
                       label:
                         - image={{ new_image }}
