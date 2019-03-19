@@ -18,7 +18,6 @@ stacks:
         ports: 8080
         binds:
           - "/etc/nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf"
-        labels:
-          - stack=active
+        labels: []
         networks:
           - office
