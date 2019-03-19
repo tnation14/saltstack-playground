@@ -1,5 +1,5 @@
 {% set app_name = "app" %} # Parameter
-{%- set deployment = salt.saltutil.runner('pillar.show_pillar', kwarg={'minion': 'minion-debian'})['stacks'][app_name] %} # TODO should this be master pillar?? Come from request?
+{%- set deployment = salt['pillar.get']('stacks')[app_name] %} # You can add pillar to the salt master by appending _master to the master's minion ID in the Topfile(i.e., minion ID 'salt' becomes 'salt_master')
 {%- set color = "blue" %}
 
 update_app_config:

@@ -1,12 +1,12 @@
 {% set app_name = "app" %} # Parameter
-{%- set deployment = salt.saltutil.runner('pillar.show_pillar', kwarg={'minion': 'minion-debian'})['stacks'][app_name] %} # TODO should this be master pillar?? Come from request?
+{%- set deployment = salt['pillar.get']('stacks')[app_name] %} # You can add pillar to the salt master by appending _master to the master's minion ID in the Topfile(i.e., minion ID 'salt' becomes 'salt_master')
 
 # Get pillar
 # Update with user
-{%- set cleanup_image_version = "1.15" %}
+{%- set cleanup_image_version = "1.14" %}
 
 {% if cleanup_image_version %}
-{%- set active_image = deployment['task_definition']['docker_config']['image'] %}
+{%- set active_image = deployment.task_definition.docker_config.image %}
 {%- set cleanup_image = active_image.split(":")[0] + ":{}".format(cleanup_image_version) %}
 
 prune_old_backends:
