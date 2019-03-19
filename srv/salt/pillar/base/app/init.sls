@@ -23,10 +23,6 @@ haproxy:
         severity: notice
     frontends:
       linode.example.com:
-        acls:
-          - name: use_office_stack
-            condition: src 10.0.2.0/16
-            enabled: False
         http_proxy:
           http:
             port: 80
