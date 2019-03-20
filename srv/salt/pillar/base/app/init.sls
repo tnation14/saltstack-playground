@@ -33,7 +33,7 @@ haproxy:
           healthcheck:
             method: GET
             uri: /healthcheck
-            host: example.com
+            host: linode.example.com
           default_backend: active
     backends:
       active:
