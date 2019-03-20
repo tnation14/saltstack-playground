@@ -41,6 +41,7 @@ Vagrant.configure("2") do |config|
     # Create a private network, which allows host-only access to the machine
     # using a specific IP.
     master.vm.network "private_network", ip: "192.168.100.2"
+    master.vm.network "forwarded_port", guest: 8000, host: 8000
     # Share an additional folder to the guest VM. The first argument is
     # the path on the host to the actual folder. The second argument is
     # the path on the guest to mount the folder. And the optional third
