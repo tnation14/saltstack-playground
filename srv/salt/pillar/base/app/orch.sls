@@ -1,4 +1,4 @@
-{% set version = 1.14 %}
+{% set version = 1.13 %}
 {% set web_port = 8080 %}
 stacks:
   app:
