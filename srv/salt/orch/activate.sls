@@ -2,8 +2,6 @@
 {%- set app_name = activate.app_name %}
 {%- set deployment = salt['pillar.get']('stacks:{}'.format(app_name)) %} # You can add pillar to the salt master by appending _master to the master's minion ID in the Topfile(i.e., minion ID 'salt' becomes 'salt_master')
 {%- set active_version = activate.version | default(deployment.version) %}
-{%- set docker_prefix = "{}_{}".format(app_name, active_version ) %}
-{%- set active_network = "{}_network".format(docker_prefix) %}
 update_backends:
   salt.state:
     - tgt: {{ deployment.loadbal.target }}
@@ -15,7 +13,6 @@ update_backends:
           docker_config:
             networks:
               - {{ deployment.loadbal.default_network }}
-              - {{ active_network }}
           config:
             frontends:
               {{ deployment.loadbal.frontend }}: # Parameterize

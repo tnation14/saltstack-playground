@@ -13,15 +13,12 @@ update_app_config:
       - {{ deployment.config.formula }}
 
 {%- set docker_prefix = "{}_{}".format(app_name, release.version ) %}
-{%- set active_network_name = "{}_{}_network".format(app_name, deployment.version ) %}
 {%- set release_network_name = "{}_network".format(docker_prefix) %}
-{%- set loadbal_networks = [deployment.loadbal.default_network, active_network_name, release_network_name] %}
-{%- do salt.log.error("Loadbal networks: {}".format(loadbal_networks)) %}
 
 {% for service, task_definition in deployment.task_definitions.items() %}
 {%- set release_image = "{}:{}".format(task_definition.docker_config.image.split(":")[0], release_version) %}
 {%- do task_definition.docker_config.labels.append("version={}".format(release_version)) %}
-{%- do task_definition.docker_config.update({'image': release_image, 'networks': [release_network_name] }) %}
+{%- do task_definition.docker_config.update({'image': release_image, 'networks': [release_network_name, deployment.loadbal.default_network] }) %}
 deploy_new_stack:
   salt.state:
     - tgt: {{ deployment.config.target }}
@@ -52,7 +49,8 @@ update_haproxy:
     - pillar:
         haproxy:
           docker_config:
-            networks: {{ loadbal_networks }}
+            networks:
+            - {{ deployment.loadbal.default_network }}
           config:
             frontends:
               {{ deployment.loadbal.frontend }}: # Parameterize
