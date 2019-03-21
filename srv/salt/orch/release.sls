@@ -1,9 +1,8 @@
 # TODO: Error handling
 {%- set release = salt['pillar.get']("release") %}
 {%- set app_name =  release.app_name %}
-{%- set new_image = release.image %}
 {%- set deployment = salt['pillar.get']('stacks:{}'.format(app_name)) %} # You can add pillar to the salt master by appending _master to the master's minion ID in the Topfile(i.e., minion ID 'salt' becomes 'salt_master')
-
+{%- set release_version = release.version | default(deployment.version) %}
 update_app_config:
   salt.state:
     - tgt: {{ deployment.config.target }}
@@ -11,13 +10,18 @@ update_app_config:
     - tgt_type: {{ deployment.config.target_type }}
     {% endif %}
     - sls:
-      - {{ deployment.config.formula}}
+      - {{ deployment.config.formula }}
+
+{%- set docker_prefix = "{}_{}".format(app_name, release.version ) %}
+{%- set active_network_name = "{}_{}_network".format(app_name, deployment.version ) %}
+{%- set release_network_name = "{}_network".format(docker_prefix) %}
+{%- set loadbal_networks = [deployment.loadbal.default_network, active_network_name, release_network_name] %}
+{%- do salt.log.error("Loadbal networks: {}".format(loadbal_networks)) %}
 
 {% for service, task_definition in deployment.task_definitions.items() %}
-{%- set old_image = task_definition.docker_config.image %}
-{%- do task_definition.docker_config.labels.append("image=" + new_image) %}
-{%- do task_definition.docker_config.update({'image': new_image }) %}
-
+{%- set release_image = "{}:{}".format(task_definition.docker_config.image.split(":")[0], release_version) %}
+{%- do task_definition.docker_config.labels.append("version={}".format(release_version)) %}
+{%- do task_definition.docker_config.update({'image': release_image, 'networks': [release_network_name] }) %}
 deploy_new_stack:
   salt.state:
     - tgt: {{ deployment.config.target }}
@@ -28,9 +32,12 @@ deploy_new_stack:
       - 'docker-ce'
     - pillar:
         docker:
+          networks:
+            {{ release_network_name }}:
+              state: present
           containers:
           {% for i in range(task_definition.count) %}
-            "{{ app_name }}_{{ service }}_{{ task_definition.docker_config.image | replace(':', '_') }}-{{ i }}":
+            "{{ docker_prefix }}_{{ service }}_{{ i }}":
               {{ task_definition.docker_config | yaml }}
           {% endfor %}
 {%- if "register_backend=true" in task_definition.docker_config.labels %}
@@ -44,6 +51,8 @@ update_haproxy:
       - haproxy
     - pillar:
         haproxy:
+          docker_config:
+            networks: {{ loadbal_networks }}
           config:
             frontends:
               {{ deployment.loadbal.frontend }}: # Parameterize
@@ -65,7 +74,7 @@ update_haproxy:
                     filters:
                       label:
                         - register_backend=true
-                        - image={{ new_image }} # Parameter
+                        - version={{ release_version }} # Parameter
               active:
                 http_proxy:
                   docker_local:
@@ -74,7 +83,7 @@ update_haproxy:
                     filters:
                       label:
                         - register_backend=true
-                        - image={{ old_image }} # Pull from pillar
+                        - version={{ deployment.version }} # Pull from pillar
 {% endif %}
 {% endfor %}
 ## TODO update pillar after health-check

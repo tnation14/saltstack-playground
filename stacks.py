@@ -12,8 +12,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--app-name', action='store',
                         required=True, dest='app_name', help='App to deploy.')
-    parser.add_argument('--image', action='store',
-                        dest='image', help='Version of image to deploy.')
+    parser.add_argument('--version', action='store',
+                        dest='version', help='Version of app to deploy.')
     parser.add_argument('--action', action='store', dest='action',
                         choices=['release', 'activate', 'deactivate'])
     parser.add_argument('--username', action='store', dest='username',
@@ -39,9 +39,9 @@ def main():
                     'app_name': args.app_name
                 }
              }
-    logger.info("Image: {}".format(args.image))
-    if args.image is not None:
-        pillar[args.action]['image'] = args.image
+    logger.info("Version: {}".format(args.version))
+    if args.version is not None:
+        pillar[args.action]['version'] = args.version
 
     resp = session.post('https://localhost:8000/hook/jenkins/webserver/{}'.format(args.action),
                         json={

@@ -9,8 +9,6 @@ haproxy:
     image: haproxy
     name: haproxy
     networks:
-      - office
-      - prod
       - loadbal
   config:
     logging:
@@ -43,7 +41,7 @@ haproxy:
           docker_local:
             enabled: False
             filters:
-              label: "image=latest"
+              label: "version=latest"
       release:
         http_proxy:
           enabled: False
@@ -52,16 +50,4 @@ haproxy:
           docker_local:
             enabled: False
             filters:
-              label: "image=latest"
-
-docker:
-  networks:
-    loadbal:
-      state: present
-      subnet: 10.3.0.0/24
-    prod:
-      state: present
-      subnet: 10.1.0.0/24
-    office:
-      state: present
-      subnet: 10.2.0.0/24
+              label: "version=latest"

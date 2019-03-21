@@ -8,6 +8,7 @@ stacks:
       target_type: glob
       frontend: linode.example.com
       backend_port: {{ web_port }}
+      default_network: loadbal
     config:
       target: minion-debian
       target_type: glob
@@ -25,5 +26,3 @@ stacks:
             - "/etc/nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf"
           labels:
             - register_backend=true
-          networks:
-            - prod
