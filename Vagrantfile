@@ -55,7 +55,12 @@ Vagrant.configure("2") do |config|
       apt-get update
 
       echo "Installing Salt master and minion"
-      apt-get install -y salt-minion salt-master salt-api
+      apt-get install -y salt-minion salt-master salt-api python-pip
+      pip install -U CherryPy
+      systemctl restart salt-api
+      salt-call --local tls.create_self_signed_cert
+      useradd --shell /bin/false saltapi
+      yes "saltapi1" | passwd saltapi
       echo "Done!"
 
     SHELL

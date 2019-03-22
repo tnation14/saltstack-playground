@@ -1,6 +1,11 @@
 mockup:
   color: blue
 
+docker:
+  networks:
+    loadbal:
+      state: present
+
 haproxy:
   enabled: True
   version: 1.9

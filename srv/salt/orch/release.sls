@@ -9,8 +9,7 @@ update_app_config:
     {% if deployment.config.target_type is defined %}
     - tgt_type: {{ deployment.config.target_type }}
     {% endif %}
-    - sls:
-      - {{ deployment.config.formula }}
+    - highstate: true
 
 {%- set docker_prefix = "{}_{}".format(app_name, release.version ) %}
 {%- set release_network_name = "{}_network".format(docker_prefix) %}
