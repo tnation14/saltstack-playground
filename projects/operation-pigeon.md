@@ -5,6 +5,7 @@ This project is a Proof of Concept for doing doing Blue/Green deployments for do
 
 ## TL;DR
 ```
+pip install requests
 vagrant up master debian-minion
 vagrant ssh master -c "sudo salt-key -A"
 ./stacks.py release --app-name "app" --action "release" --version "1.14"
@@ -15,6 +16,7 @@ vagrant ssh master -c "sudo salt-key -A"
 
 
 ## Requirements
+`requests`
 Vagrant
 VirtualBox
 
@@ -22,6 +24,7 @@ VirtualBox
 
 This project consists of a salt master, and a Deb 9 minion VM. There is a CentOS minion in the Vagrantfile, but it's not used here. To get started, provision the master and debian-minion VMs, and accept the minion key on the master.
 ```
+$ pip install requests
 vagrant up master debian-minion
 vagrant ssh master -c "sudo salt-key -A" # Accepts all minion keys
 ```
@@ -136,13 +139,13 @@ The top level key for an orch pillar is the Application's name, denoted as `app_
 
 This repo has a simple project containing a nginx web server. You can deploy different versions of nginx using with `stacks.py` in the repo root.
 
-Releasing a stack:
+### Releasing a stack:
 
 In order to simulate how prod/office traffic is routed, run `curl` inside and outside of the VM.
 
 In one terminal tab, run  `vagrant ssh debian-minion -c "while true; do curl -k https://localhost; done"`
 
-- In another, run `while true; do curl -k https://localhost:4443; done`.
+In another, run `while true; do curl -k https://localhost:4443; done`.
 
 You should see 503 errors in both terminals, since no backends are running. Deploy a new stack with
 
@@ -154,6 +157,8 @@ Where $NGINX_VERSION is a dockerhub tag for nginx greater than 1.13.
 After 30-50s, you should see NGINX_VERSION show up in curl responses outside of the VM. You'll see 503s inside the VM because there is no active stack.
 
 
+### Activating a stack
+
 To activate the released stack, do
 
 ```
@@ -164,7 +169,7 @@ Where $NGINX_VERSION matches the released version. In about 20s, you should star
 
 *** Note *** you must update `version` in the pillar after activating a stack. In CI, this step will be done by Jenkins.
 
-Dectivating a stack:
+### Dectivating a stack:
 
 ```
 stacks.py --app-name APP_NAME --version NGINX_VERSION --action deactivate
