@@ -43,12 +43,13 @@ def main():
     if args.version is not None:
         pillar[args.action]['version'] = args.version
 
-    resp = session.post('https://localhost:8000/hook/jenkins/webserver/{}'.format(args.action),
-                        json={
-                            'action': args.action,
-                            'pillar': pillar
-                        }, verify=False)
-    logger.info('Response: {}'.format(resp.text))
+    resp = session.post('https://localhost:8000', json=[{
+                            "client": "runner",
+                            "fun": "state.orchestrate",
+                            "mods": args.action,
+                            "pillar": pillar
+                        }], verify=False)
+    logger.debug('Response: {}'.format(resp.text))
 
 
 if __name__ == '__main__':
