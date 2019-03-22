@@ -2,6 +2,21 @@
 
 This project is a Proof of Concept for doing doing Blue/Green deployments for docker apps on a single VM instance. It uses docker to deploy different versions of the application, and HAProxy to dynamically discover backends and route traffic between different versions. This is a stopgap measure used to setup zero-touch deployments until true discovery is available.
 
+- [Requirements](#requirements)
+- [Getting Started](#getting-started)
+  - [Concepts](#concepts)
+    - [Stacks](#stacks)
+    - [Deployments](#deployments)
+- [Project Structure](#project-structure)
+  - [Minion Congfiguration](#minion-congfiguration)
+  - [Application Deployment](#application-deployment)
+    - [Orch pillar options](#orch-pillar-options)
+- [Running a deployment](#running-a-deployment)
+  - [Releasing a stack](#releasing-a-stack-)
+  - [Activating a stack](#activating-a-stack)
+  - [Dectivating a stack](#dectivating-a-stack-)
+
+
 
 ## TL;DR
 ```
@@ -16,9 +31,9 @@ vagrant ssh master -c "sudo salt-key -A"
 
 
 ## Requirements
-`requests`
-Vagrant
-VirtualBox
+- `requests`
+- Vagrant
+- VirtualBox
 
 ## Getting Started
 
@@ -36,9 +51,9 @@ On debian-minion, the provisioner simply installs a salt minion, with the `maste
 ### Concepts
 These are some ideas and terms used throughout the rest of this README.
 
-#### Stack - an Application's full infrastructure.
+#### Stacks
 
-A stack consists of a loadbalancer, at least one minion running at least one docker containers, and configuration files (optional). A stack has 4 states:
+A stack is an Application's full infrastructure. It consists of a loadbalancer, at least one minion running at least one docker containers, and configuration files (optional). A stack has 4 states:
     - release (stack only receives internal traffic)
     - active (stack is receiving production traffic)
     - inactive (stack exists, but is receiving no traffic)
@@ -48,7 +63,8 @@ A stack can be in any state, with the following constraints:
     - A stack can be in a max of one state at a time (i.e., a stack cannot be `release` and `active`).
     - A maximum one stack can be in any given state (i.e., there cannot be two release stacks).
 
-#### Deployment - an action that moves a stack from one state to another.
+#### Deployments
+A deployment is an action that moves a stack from one state to another.
 
 There are 3 kinds of deployments.
 
@@ -139,7 +155,7 @@ The top level key for an orch pillar is the Application's name, denoted as `app_
 
 This repo has a simple project containing a nginx web server. You can deploy different versions of nginx using with `stacks.py` in the repo root.
 
-### Releasing a stack:
+### Releasing a stack
 
 In order to simulate how prod/office traffic is routed, run `curl` inside and outside of the VM.
 
@@ -169,7 +185,7 @@ Where $NGINX_VERSION matches the released version. In about 20s, you should star
 
 *** Note *** you must update `version` in the pillar after activating a stack. In CI, this step will be done by Jenkins.
 
-### Dectivating a stack:
+### Dectivating a stack
 
 ```
 stacks.py --app-name APP_NAME --version NGINX_VERSION --action deactivate
