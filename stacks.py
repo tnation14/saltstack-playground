@@ -4,7 +4,7 @@ import argparse
 import logging
 
 logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 logger.addHandler(logging.StreamHandler())
 
 
@@ -19,10 +19,15 @@ def main():
     parser.add_argument('--username', action='store', dest='username',
                         default='saltapi')
     parser.add_argument('--password', action='store', dest='password',
-                        default='saltapi1')
+                        default='saltapi1') # TODO switch to getpass
+    parser.add_argument('--debug', action='store_true', dest='debug',
+                        default=False)
 
     args = parser.parse_args()
     vars(args)
+    if args.debug:
+        logger.setLevel(logging.DEBUG)
+
     session = requests.Session()
     resp = session.post('https://localhost:8000/login',
                         json={
@@ -31,15 +36,16 @@ def main():
                             'eauth': 'pam',
                         }, verify=False)
 
-    logger.info('Response: {}'.format(resp.text))
-    logger.info('Response: {}'.format(resp.headers))
+    logger.debug('Response: {}'.format(resp.text))
+    logger.debug('Response: {}'.format(resp.headers))
 
     pillar = {
                 args.action: {
                     'app_name': args.app_name
                 }
              }
-    logger.info("Version: {}".format(args.version))
+
+    logger.debug("Version: {}".format(args.version))
     if args.version is not None:
         pillar[args.action]['version'] = args.version
 
