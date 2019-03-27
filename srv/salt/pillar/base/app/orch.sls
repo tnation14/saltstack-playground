@@ -35,3 +35,14 @@ stacks:
           image: myapp:latest
           environment:
             - MYAPP_VERSION={{ version }}
+      migrations:
+        count: 1
+        docker_config:
+          state: running
+          image: myapp:latest
+          command:
+            - python
+            - manage.py
+            - migrate
+          environment:
+            - MYAPP_VERSION={{ version }}
