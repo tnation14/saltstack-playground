@@ -1,5 +1,5 @@
 mockup:
-  color: blue
+  version: latest
 
 docker:
   networks:

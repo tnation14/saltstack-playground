@@ -1,3 +1,8 @@
+{% set mockup = salt['pillar.get']('mockup') %}
+
+include:
+  - 'docker-ce'
+
 test_write_nginx_config:
   file.managed:
     - name: /etc/nginx/conf.d/default.conf
@@ -10,6 +15,43 @@ test_write_nginx_config:
     - require_in:
       - sls: docker-ce
 
+test_write_django_src:
+  file.recurse:
+    - name: /opt/app
+    - source: salt://test/django
+    - clean: true
+    - dir_mode: 0644
+    - replace: true
+
+test_write_django_dockerfile:
+  file.managed:
+    - name: /opt/app/Dockerfile
+    - source: salt://mockup/files/Dockerfile
+    - clean: true
+    - dir_mode: 0644
+    - replace: true
+    - require_in:
+      - docker_image: test_build_django_image
+
+test_build_django_image:
+  docker_image.present:
+    - name: myapp
+    - tag: {{ mockup.version }}
+    - build: /opt/app
+    - watch:
+      - file: test_write_django_src
+      - file: test_write_django_dockerfile
+
+test_pull_nginx_image:
+  docker_image.present:
+    - name: nginx:1.15
+
+test_tag_nginx_image:
+  cmd.run:
+    - name: docker tag nginx:1.15 myapp-nginx:{{ mockup.version }}
+    - unless: '[ $(docker images -q myapp:{{ mockup.version }}) | wc -l ]'
+    - require:
+      - docker_image: test_pull_nginx_image
 
 test_mockup_ssl_create_ca:
   module.run:

@@ -20,9 +20,18 @@ stacks:
           state: running
           start: true
           restart: always
-          image: nginx:{{ version }}
+          image: myapp-nginx:latest
           ports: {{ web_port }}
           binds:
             - "/etc/nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf"
           labels:
             - register_backend=true
+      django:
+        count: 1
+        docker_config:
+          state: running
+          start: true
+          restart: always
+          image: myapp:latest
+          environment:
+            - MYAPP_VERSION={{ version }}

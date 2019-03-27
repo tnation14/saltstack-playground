@@ -10,6 +10,9 @@ update_app_config:
     - tgt_type: {{ deployment.config.target_type }}
     {% endif %}
     - highstate: true
+    - pillar:
+        mockup:
+          version: {{ release_version }}
 
 {%- set docker_prefix = "{}_{}".format(app_name, release.version ) %}
 {%- set release_network_name = "{}_network".format(docker_prefix) %}
