@@ -13,12 +13,17 @@ update_app_config:
 
 {%- set docker_prefix = "{}_{}".format(app_name, release.version ) %}
 {%- set release_network_name = "{}_network".format(docker_prefix) %}
-
-{% for service, task_definition in deployment.task_definitions.items() %}
+{%- for service, task_definition in deployment.task_definitions.items() %}
 {%- set release_image = "{}:{}".format(task_definition.docker_config.image.split(":")[0], release_version) %}
-{%- do task_definition.docker_config.labels.append("version={}".format(release_version)) %}
-{%- do task_definition.docker_config.update({'image': release_image, 'networks': [release_network_name, deployment.loadbal.default_network] }) %}
-deploy_new_stack:
+{%- if task_definition.docker_config.labels is defined %}
+  {%- do task_definition.docker_config.labels.append("version={}".format(release_version)) %}
+{%- else %}
+  {%- do task_definition.docker_config.update({"labels": ["version={}".format(release_version)] }) %}
+{%- endif %}
+
+
+{%- do task_definition.docker_config.update({'image': release_image, 'networks': [deployment.loadbal.default_network, {release_network_name: [{'aliases': [service]}]}]}) %}
+deploy_{{ service }}_service:
   salt.state:
     - tgt: {{ deployment.config.target }}
     {% if deployment.config.target_type is defined %}
@@ -35,8 +40,9 @@ deploy_new_stack:
           {% for i in range(task_definition.count) %}
             "{{ docker_prefix }}_{{ service }}_{{ i }}":
               {{ task_definition.docker_config | yaml }}
+
           {% endfor %}
-{%- if "register_backend=true" in task_definition.docker_config.labels %}
+{% endfor %}
 update_haproxy:
   salt.state:
     - tgt: {{ deployment.loadbal.target }}
@@ -81,6 +87,4 @@ update_haproxy:
                       label:
                         - register_backend=true
                         - version={{ deployment.version }} # Pull from pillar
-{% endif %}
-{% endfor %}
 ## TODO update pillar after health-check
