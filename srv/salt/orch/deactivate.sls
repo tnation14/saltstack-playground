@@ -10,7 +10,7 @@
 {% for service, task_definition in deployment.task_definitions.items() %}
 {%- do salt.log.error("image_base: {}".format(task_definition.docker_config.image.split(":")[0])) %}
 {%- set container_config = {'image': "{}:{}".format(task_definition.docker_config.image.split(":")[0], cleanup_image_version), 'state': "absent", 'force': True} %}
-deactivate_old_stack:
+deactivate_{{ service }}:
   salt.state:
     - tgt: {{ deployment.config.target }}
     - tgt_type: {{ deployment.config.target_type | default("glob")}}
