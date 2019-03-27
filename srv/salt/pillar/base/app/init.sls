@@ -41,6 +41,10 @@ haproxy:
     backends:
       active:
         http_proxy:
+          healthcheck:
+            method: GET
+            uri: /healthcheck
+            host: linode.example.com
           balance_algorithm: roundrobin
           servers: {}
           docker_local:
@@ -49,6 +53,10 @@ haproxy:
               label: "version=latest"
       release:
         http_proxy:
+          healthcheck:
+            method: GET
+            uri: /healthcheck
+            host: linode.example.com
           enabled: False
           balance_algorithm: roundrobin
           servers: {}
