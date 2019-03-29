@@ -107,8 +107,8 @@ stacks: # Top level key for all stacks
       target_type:
       formula:
     task_definitions:
+      count: 1
       <service_name>:
-        count: 1
         docker_config:
           state: running
           start: true
