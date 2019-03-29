@@ -2,8 +2,6 @@
 import requests
 import argparse
 import logging
-import json
-import sys
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -56,16 +54,8 @@ def main():
                             "fun": "state.orchestrate",
                             "mods": args.action,
                             "pillar": pillar
-                        }], verify=False).json()
-
-    if resp['return'][0]['retcode']:
-        logger.info("Action %s failed!", args.action)
-        logger.info(json.dumps(resp['return'][0]['data'],
-                               indent=2, separators=(': ', ',')))
-    else:
-        logger.info("Action %s succeeded!", args.action)
-
-    sys.exit(resp['return'][0]['retcode'])
+                        }], verify=False)
+    logger.debug('Response: {}'.format(resp.text))
 
 
 if __name__ == '__main__':
