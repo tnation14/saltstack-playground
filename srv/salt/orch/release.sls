@@ -30,7 +30,7 @@ def run():
                                                              'tgt_type', 'glob')},
           {"sls": "docker-ce"},
           {"pillar": __salt__['helpers.build_docker_pillar'](deployment, release)},
-          {"onsuccess": [
+          {"require": [
                 {"salt": "update_app_config"}
             ]
            }
@@ -45,7 +45,7 @@ def run():
           {"pillar": __salt__['helpers.build_haproxy_pillar'](deployment,
                                                               release,
                                                               release=True)},
-          {"onsuccess": [
+          {"require": [
                 {"salt": "deploy_services"}
             ]
            }
