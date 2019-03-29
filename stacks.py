@@ -2,6 +2,7 @@
 import requests
 import argparse
 import logging
+import json
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -55,7 +56,20 @@ def main():
                             "mods": args.action,
                             "pillar": pillar
                         }], verify=False)
-    logger.debug('Response: {}'.format(resp.text))
+    if resp.status_code == 200:
+        salt_results = resp.json()
+        if salt_results['return'][0]['retcode'] != 0:
+            logger.info("Action %s failed!", args.action)
+            logger.info(json.dumps(salt_results, indent=2,
+                                   separators=(',', ': ')))
+        else:
+            logger.info("Action %s succeeded!", args.action)
+            logger.debug(json.dumps(salt_results, indent=2,
+                                    separators=(',', ': ')))
+    else:
+        logger.info("Action %s failed with error code %d!",
+                    args.action, resp.status_code)
+        resp.raise_for_status()
 
 
 if __name__ == '__main__':
