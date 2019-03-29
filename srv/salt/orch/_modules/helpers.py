@@ -14,7 +14,11 @@ def build_docker_pillar(deployment, overrides, deactivate=False):
                                     overrides['version'])
     ret = {
         "docker": {
-            "networks": {},
+            "networks": {
+                deployment['loadbal']['default_network']: {
+                    "state": "present"  # We always want the loadbal network
+                }
+            },
             "containers": {}
         }
 
