@@ -30,6 +30,7 @@ test_write_django_dockerfile:
     - clean: true
     - dir_mode: 0644
     - replace: true
+    - template: jinja
     - require_in:
       - docker_image: test_build_django_image
 

@@ -34,8 +34,6 @@ stacks:
             start: true
             restart: always
             image: myapp:latest
-            environment:
-              - MYAPP_VERSION={{ version }}
         migrations:
           count: 1
           docker_config:
@@ -45,5 +43,3 @@ stacks:
               - python
               - manage.py
               - migrate
-            environment:
-              - MYAPP_VERSION={{ version }}
