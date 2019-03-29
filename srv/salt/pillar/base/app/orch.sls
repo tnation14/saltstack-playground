@@ -13,36 +13,37 @@ stacks:
       target: minion-debian
       target_type: glob
       formula: mockup
-    task_definitions:
-      web:
-        count: 1
-        docker_config:
-          state: running
-          start: true
-          restart: always
-          image: myapp-nginx:latest
-          ports: {{ web_port }}
-          binds:
-            - "/etc/nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf"
-          labels:
-            - register_backend=true
-      django:
-        count: 1
-        docker_config:
-          state: running
-          start: true
-          restart: always
-          image: myapp:latest
-          environment:
-            - MYAPP_VERSION={{ version }}
-      migrations:
-        count: 1
-        docker_config:
-          state: running
-          image: myapp:latest
-          command:
-            - python
-            - manage.py
-            - migrate
-          environment:
-            - MYAPP_VERSION={{ version }}
+    task_definition:
+      count: 1
+      services:
+        web:
+          docker_config:
+            state: running
+            start: true
+            restart: always
+            image: myapp-nginx:latest
+            ports: {{ web_port }}
+            binds:
+              - "/etc/nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf"
+            labels:
+              - register_backend=true
+        django:
+          count: 1
+          docker_config:
+            state: running
+            start: true
+            restart: always
+            image: myapp:latest
+            environment:
+              - MYAPP_VERSION={{ version }}
+        migrations:
+          count: 1
+          docker_config:
+            state: running
+            image: myapp:latest
+            command:
+              - python
+              - manage.py
+              - migrate
+            environment:
+              - MYAPP_VERSION={{ version }}
