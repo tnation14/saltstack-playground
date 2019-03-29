@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+import logging
+
+log = logging.getLogger(__name__)
 
 def get_with_defaults(dictionary, key, default):
     try:
@@ -108,21 +111,23 @@ def build_haproxy_pillar(deployment, overrides, release=False):
                     }
 
                 }
-            },
-            "backends": {
-                "release": {
-                       "http_proxy": {
-                           "docker_local": {
-                               "enabled": True,
-                               "port": deployment['loadbal']['backend_port'],
-                               "filters": {
-                                   "label": [
-                                       "register_backend=true",
-                                       "version={}".format(overrides['version'])
-                                   ]
-                               }
-                           }
+            }
+        })
+
+        ret['haproxy']['config']['backends']['release'] = {
+               "http_proxy": {
+                   "docker_local": {
+                       "enabled": True,
+                       "port": deployment['loadbal']['backend_port'],
+                       "filters": {
+                           "label": [
+                               "register_backend=true",
+                               "version={}".format(overrides['version'])
+                           ]
                        }
-                   }}
-           })
+                   }
+               }
+           }
+
+    log.error("Haproxy Pillar: %s", ret)
     return ret
