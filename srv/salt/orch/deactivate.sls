@@ -19,10 +19,10 @@ def run():
         'deactivate_services': {
             'salt.state': [
               {"tgt": deployment['config']['target']},
-              {"tgt_type": __salt__['helpers.get_with_defaults'](
+              {"tgt_type": __salt__['pigeon.get_with_defaults'](
                 deployment['config'], 'tgt_type', 'glob')},
               {"sls": "docker-ce"},
-              {"pillar": __salt__['helpers.build_docker_pillar'](
+              {"pillar": __salt__['pigeon.build_docker_pillar'](
                 deployment, deactivate, deactivate=True)},
             ]
           }

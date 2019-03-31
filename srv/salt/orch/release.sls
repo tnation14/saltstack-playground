@@ -8,7 +8,7 @@ log = logging.getLogger(__name__)
 def run():
     release = __salt__['pillar.get']("release")
     deployment = __salt__['pillar.get']('stacks:{}'.format(release['app_name']))  # You can add pillar to the salt master by appending _master to the master's minion ID in the Topfile # NOQA E501
-    release['version'] = __salt__['helpers.get_with_defaults'](
+    release['version'] = __salt__['pigeon.get_with_defaults'](
         release, 'version',
         deployment['version'])
     log.debug("release: %s", release)
@@ -17,8 +17,8 @@ def run():
       'update_app_config': {
         'salt.state': [
           {"tgt": deployment['config']['target']},
-          {"tgt_type": __salt__['helpers.get_with_defaults'](deployment['config'],
-                                                             'tgt_type', 'glob')},
+          {"tgt_type": __salt__['pigeon.get_with_defaults'](deployment['config'],
+                                                            'tgt_type', 'glob')},
           {"sls": "mockup"},
           {"pillar": {'mockup': {'version': release['version']}}}
         ]
@@ -26,10 +26,10 @@ def run():
       'deploy_services': {
         'salt.state': [
           {"tgt": deployment['config']['target']},
-          {"tgt_type": __salt__['helpers.get_with_defaults'](deployment['config'],
-                                                             'tgt_type', 'glob')},
+          {"tgt_type": __salt__['pigeon.get_with_defaults'](deployment['config'],
+                                                            'tgt_type', 'glob')},
           {"sls": "docker-ce"},
-          {"pillar": __salt__['helpers.build_docker_pillar'](deployment, release)},
+          {"pillar": __salt__['pigeon.build_docker_pillar'](deployment, release)},
           {"require": [
                 {"salt": "update_app_config"}
             ]
@@ -39,12 +39,12 @@ def run():
       'update_haproxy': {
         'salt.state': [
           {"tgt": deployment['loadbal']['target']},
-          {"tgt_type": __salt__['helpers.get_with_defaults'](deployment['loadbal'],
-                                                             'tgt_type', 'glob')},
+          {"tgt_type": __salt__['pigeon.get_with_defaults'](deployment['loadbal'],
+                                                            'tgt_type', 'glob')},
           {"sls": "haproxy"},
-          {"pillar": __salt__['helpers.build_haproxy_pillar'](deployment,
-                                                              release,
-                                                              release=True)},
+          {"pillar": __salt__['pigeon.build_haproxy_pillar'](deployment,
+                                                             release,
+                                                             release=True)},
           {"require": [
                 {"salt": "deploy_services"}
             ]
